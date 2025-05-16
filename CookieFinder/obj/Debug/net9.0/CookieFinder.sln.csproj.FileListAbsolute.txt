@@ -26,3 +26,4 @@
 /Users/ellenguyen/repos/cookie-finder/CookieFinder/obj/Debug/net9.0/CookieFinder.pdb
 /Users/ellenguyen/repos/cookie-finder/CookieFinder/obj/Debug/net9.0/CookieFinder.sln.genruntimeconfig.cache
 /Users/ellenguyen/repos/cookie-finder/CookieFinder/obj/Debug/net9.0/ref/CookieFinder.dll
+/Users/ellenguyen/repos/cookie-finder/CookieFinder/obj/Debug/net9.0/CookieFinder.sln.sourcelink.json

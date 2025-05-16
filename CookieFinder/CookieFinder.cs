@@ -27,9 +27,9 @@ public class CookieFinder
     {
         (string csvFileName, DateTime searchDate) = GetCommandLineArgs(args);
         SearchDate = searchDate;
+
         string csvFilePath = Path.Combine(Directory.GetCurrentDirectory(), csvFileName);
-        Console.WriteLine(csvFilePath);
-        Console.WriteLine(SearchDate);
+        PrintMostActiveCookies(csvFilePath);
     }
 
     private static (string, DateTime) GetCommandLineArgs(string[] args)
@@ -73,4 +73,47 @@ public class CookieFinder
         return (fileName, date);
     }
 
+    private static void PrintMostActiveCookies(string csvFilePath)
+    {
+        var cookieCounts = new Dictionary<string, int>();
+
+        // TODO: Validate file path
+        foreach (var logEntry in File.ReadLines(csvFilePath))
+        {
+            string[] splitEntry = logEntry.Split(',');
+
+            // TODO: Validate log entry format
+            // Example entry: "AtY0laUfhglK3lC7,2018-12-09T14:19:00+00:00"
+
+            string cookie = splitEntry[0];
+            if (!DateTime.TryParse(splitEntry[1], out DateTime cookieTime))
+            {
+                Console.WriteLine($"Invalid timestamp in log entry: {logEntry} in file {csvFilePath}");
+                Environment.Exit(0);
+            }
+
+            if (cookieTime.Date == SearchDate)
+            {
+                // Add cookie to dictionary or increment count
+                cookieCounts[cookie] = cookieCounts.GetValueOrDefault(cookie) + 1;
+            }
+            else if (cookieTime < SearchDate)
+            {
+                break; // Short-circuit log parsing if past cookie day
+            }
+        }
+
+        if (cookieCounts.Count == 0)
+        {
+            Console.WriteLine($"No cookies found in logs {csvFilePath} for provided day {SearchDate}.");
+            Environment.Exit(0);
+        }
+
+        int maxCount = cookieCounts.Values.Max();
+        Console.WriteLine("Most active cookie(s):");
+        foreach (var cookie in cookieCounts.Where(x => x.Value == maxCount))
+        {
+            Console.WriteLine(cookie.Key);
+        }
+    }
 }
