@@ -1,12 +1,12 @@
 ﻿/*
 Quantcast Take-Home Assignment: Most Active Cookie
 
-Command line program that returns the most active cookie for a specific day. 
+Command line program that returns the most active cookie(s) for a specific day. 
 
 $ ./[command] -f cookie_log.csv -d 2018-12-09
 
 Current way to run file (fix later):
- dotnet run -- -f cookie_log.csv -d 2018-12-09
+    dotnet run -- -f cookie_log.csv -d 2018-12-09
 
 Assumptions:
 ● If multiple cookies meet that criteria, please return all of them on separate lines.
@@ -21,15 +21,13 @@ using System.Globalization;
 
 public class CookieFinder
 {
-    private static DateTime SearchDate;
-
     private static void Main(string[] args)
     {
         (string csvFileName, DateTime searchDate) = GetCommandLineArgs(args);
-        SearchDate = searchDate;
-
         string csvFilePath = Path.Combine(Directory.GetCurrentDirectory(), csvFileName);
-        PrintMostActiveCookies(csvFilePath);
+
+        List<string> cookies = GetMostActiveCookies(csvFileName, searchDate);
+        PrintMostActiveCookies(cookies);
     }
 
     private static (string, DateTime) GetCommandLineArgs(string[] args)
@@ -48,13 +46,18 @@ public class CookieFinder
                         fileName = args[i + 1];
                         if (!fileName.EndsWith(".csv"))
                         {
-                            Console.WriteLine("Invalid .csv file name.");
-                            Environment.Exit(0);
+                            LogError("Invalid .csv file name.");
+                            Environment.Exit(1);
                         }
                         break;
 
                     case "-d":
-                        date = DateTime.ParseExact(args[i + 1], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                        if (!DateTime.TryParseExact(args[i + 1], "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+                        {
+                            LogError("Invalid date format.");
+                            Environment.Exit(1);
+                        }
+                        date = parsedDate;
                         break;
                 }
             }
@@ -62,19 +65,20 @@ public class CookieFinder
         else
         {
             Console.WriteLine("Invalid arguments.");
-            Environment.Exit(0);
+            Environment.Exit(1);
         }
 
         if (string.IsNullOrWhiteSpace(fileName) || date == DateTime.MinValue)
         {
-            Console.WriteLine("Unable to parse arguments. Please check -f and -d parameters.");
+            LogError("Unable to parse arguments. Please check -f and -d parameters.");
         }
 
         return (fileName, date);
     }
 
-    private static void PrintMostActiveCookies(string csvFilePath)
+    private static List<string> GetMostActiveCookies(string csvFilePath, DateTime searchDate)
     {
+        var mostActiveCookies = new List<string>();
         var cookieCounts = new Dictionary<string, int>();
 
         // TODO: Validate file path
@@ -84,20 +88,19 @@ public class CookieFinder
 
             // TODO: Validate log entry format
             // Example entry: "AtY0laUfhglK3lC7,2018-12-09T14:19:00+00:00"
-
             string cookie = splitEntry[0];
             if (!DateTime.TryParse(splitEntry[1], out DateTime cookieTime))
             {
-                Console.WriteLine($"Invalid timestamp in log entry: {logEntry} in file {csvFilePath}");
-                Environment.Exit(0);
+                LogError($"Invalid timestamp in log entry: {logEntry} in file {csvFilePath}");
+                Environment.Exit(1);
             }
 
-            if (cookieTime.Date == SearchDate)
+            if (cookieTime.Date == searchDate)
             {
                 // Add cookie to dictionary or increment count
                 cookieCounts[cookie] = cookieCounts.GetValueOrDefault(cookie) + 1;
             }
-            else if (cookieTime < SearchDate)
+            else if (cookieTime < searchDate)
             {
                 break; // Short-circuit log parsing if past cookie day
             }
@@ -105,15 +108,30 @@ public class CookieFinder
 
         if (cookieCounts.Count == 0)
         {
-            Console.WriteLine($"No cookies found in logs {csvFilePath} for provided day {SearchDate}.");
-            Environment.Exit(0);
+            LogError($"No cookies found in logs {csvFilePath} for provided day {searchDate}.");
+            Environment.Exit(1);
         }
 
+        // 
         int maxCount = cookieCounts.Values.Max();
-        Console.WriteLine("Most active cookie(s):");
         foreach (var cookie in cookieCounts.Where(x => x.Value == maxCount))
         {
-            Console.WriteLine(cookie.Key);
+            mostActiveCookies.Add(cookie.Key);
         }
+
+        return mostActiveCookies;
+    }
+
+    private static void PrintMostActiveCookies(List<string> cookies)
+    {
+        foreach (var c in cookies)
+        {
+            Console.WriteLine(c);
+        }
+    }
+
+    private static void LogError(string message)
+    {
+        Console.Error.WriteLine($"[Error]: {message}");
     }
 }
