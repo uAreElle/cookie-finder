@@ -1,4 +1,4 @@
-# Most Active Cookie Finder
+# Most Active Cookie Finder 🍪
 
 A command-line C# program that processes a cookie log file and returns the most active cookie(s) for a specific day.
 
