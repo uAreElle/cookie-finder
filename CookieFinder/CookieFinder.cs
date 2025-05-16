@@ -1,20 +1,10 @@
 ﻿/*
 Quantcast Take-Home Assignment: Most Active Cookie
 
-Command line program that returns the most active cookie(s) for a specific day. 
+Command line program that returns the most active cookie(s) for a specific day.
 
-$ ./[command] -f cookie_log.csv -d 2018-12-09
-
-Current way to run file (fix later):
+How to run program:
     dotnet run -- -f cookie_log.csv -d 2018-12-09
-
-Assumptions:
-● If multiple cookies meet that criteria, please return all of them on separate lines.
-● Please only use additional libraries for testing, logging and cli-parsing. There are libraries for most
-languages which make this too easy (e.g pandas) and we’d like you to show off your coding skills.
-● You can assume -d parameter takes date in UTC time zone.
-● You have enough memory to store the contents of the whole file.
-● Cookies in the log file are sorted by timestamp (most recent occurrence is the first line of the file).
 */
 
 using System.Globalization;

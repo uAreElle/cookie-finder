@@ -13,7 +13,7 @@ If multiple cookies share the highest count, all are printed (one per line).
 This project targets [.NET 9](https://dotnet.microsoft.com/en-us/download/dotnet/9.0-preview).  
 Make sure you have the .NET 9 SDK installed.
 
-To run:
+From the project root (`CookieFinder` directory):
 
 ```bash
 dotnet run -- -f cookie_log.csv -d 2018-12-09
